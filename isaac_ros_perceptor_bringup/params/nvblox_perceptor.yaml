@@ -1,0 +1,30 @@
+/**:
+  ros__parameters:
+    # printing statistics on console
+    print_timings_to_console: false
+    # Lidar settings
+    use_lidar: false
+    # QoS settings
+    input_qos: "SENSOR_DATA"
+    # Map clearing settings
+    map_clearing_frame_id: "base_link"
+    # Rviz visualization
+    slice_visualization_attachment_frame_id: "base_link"
+
+    static_mapper:
+      esdf_slice_height: 0.09
+      esdf_slice_min_height: 0.09
+      esdf_slice_max_height: 0.65
+      # projective integrators - Changed to constant to deal with movement in the scene
+      projective_integrator_weighting_mode: "constant"
+      # tsdf decay - Turned up to deal with movement in the scene
+      tsdf_decay_factor: 0.85
+      # do not send ceiling:
+      mesh_streamer_exclusion_height_m: 1.4
+      mesh_streamer_exclusion_radius_m: 5.0
+      mesh_bandwidth_limit_mbps: 30.0
+
+    dynamic_mapper:
+      esdf_slice_height: 0.09
+      esdf_slice_min_height: 0.09
+      esdf_slice_max_height: 0.65
