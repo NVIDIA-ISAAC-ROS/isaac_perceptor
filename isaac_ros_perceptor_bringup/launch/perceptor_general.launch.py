@@ -37,6 +37,7 @@ def generate_launch_description() -> LaunchDescription:
     # }
     args.add_arg('perceptor_configuration')
     args.add_arg('global_frame', 'odom')
+    args.add_arg('vslam_image_qos', 'SENSOR_DATA')
     args.add_arg('invert_odom_to_base_tf', False)
 
     enable_vslam = lu.dict_values_contain_substring(args.perceptor_configuration, 'cuvslam')
@@ -77,6 +78,7 @@ def generate_launch_description() -> LaunchDescription:
             launch_arguments={
                 'enabled_stereo_cameras_for_vslam': enabled_stereo_cameras_for_vslam,
                 'global_frame': args.global_frame,
+                'image_qos': args.vslam_image_qos,
                 'invert_odom_to_base_tf': args.invert_odom_to_base_tf,
             },
             condition=IfCondition(enable_vslam),

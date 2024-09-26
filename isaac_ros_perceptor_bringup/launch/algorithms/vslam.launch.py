@@ -56,6 +56,7 @@ def add_vslam(args: lu.ArgumentContainer) -> list[Action]:
             'accel_noise_density': 0.001862,
             'accel_random_walk': 0.003,
             'calibration_frequency': 200.0,
+            'image_qos': args.image_qos,
             # It's recommended to use image masking with unrectified images.
             'rectified_images': False,
             'img_mask_bottom': 30,
@@ -93,6 +94,7 @@ def generate_launch_description() -> LaunchDescription:
     args.add_arg('min_num_images_used_in_vslam', 2)
     args.add_arg('container_name', 'nova_container')
     args.add_arg('global_frame', 'odom')
+    args.add_arg('image_qos', 'SENSOR_DATA')
     args.add_arg('invert_odom_to_base_tf', False)
     args.add_arg('publish_odom_to_base_tf', True)
     args.add_opaque_function(add_vslam)
