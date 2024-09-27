@@ -34,6 +34,7 @@ def create_imager_pipeline(stereo_camera_name: str, identifier: str,
         plugin='nvidia::isaac_ros::image_proc::RectifyNode',
         namespace=f'{stereo_camera_name}/{identifier}',
         parameters=[{
+            'input_qos': 'SENSOR_DATA',
             'output_width': pc.HAWK_IMAGE_WIDTH,
             'output_height': pc.HAWK_IMAGE_HEIGHT,
         }],
