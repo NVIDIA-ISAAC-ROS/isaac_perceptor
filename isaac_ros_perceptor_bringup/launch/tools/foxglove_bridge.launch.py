@@ -15,20 +15,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List
-from isaac_ros_launch_utils.all_types import *
-from isaac_ros_launch_utils import ArgumentContainer
-from launch.action import Action
+import isaac_ros_launch_utils.all_types as lut
 import isaac_ros_launch_utils as lu
 
 # Whitelisted topics are the only ones propagated to Foxglove. Set "use_foxglove_whitelist:=False"
 # to make all topics available.
 TOPIC_WHITELIST = [
     # nvblox
-    '/nvblox_human_node/.*_layer',
-    '/nvblox_human_node/combined_esdf_pointcloud',
+    '/nvblox_node/combined_esdf_pointcloud',
     '/nvblox_node/.*_layer',
-    '/nvblox_node/map_slice_bounds',
+    '/nvblox_node/esdf_slice_bounds',
     '/nvblox_node/mesh',
     '/nvblox_node/static_esdf_pointcloud',
     # CUVSLAM
@@ -54,11 +50,14 @@ TOPIC_WHITELIST = [
     '/back_2d_lidar/scan',
     '/front_2d_lidar/scan',
     '/front_3d_lidar/scan',
+    '/front_3d_lidar/lidar_points_filtered',
     # Robot
     '/robot_description',
     '/tf',
     '/tf_static',
     '/diagnostics',
+    # Global localization
+    '/visual_localization/pose',
 ]
 
 IMAGE_TOPIC_WHITELIST = ["depth", "left/image_resized"]
@@ -76,11 +75,11 @@ def get_topic_whitelist():
     return topic_whitelist
 
 
-def add_foxglove(args: lu.ArgumentContainer) -> List[Action]:
+def add_foxglove(args: lu.ArgumentContainer) -> list[lut.Action]:
 
     params = [{
         'send_buffer_limit': int(args.send_buffer_limit),
-        'max_qos_depth': 1,
+        'max_qos_depth': 30,
         'use_compression': False,
         'capabilities': ['clientPublish', 'connectionGraph', 'assets'],
     }]
@@ -90,21 +89,22 @@ def add_foxglove(args: lu.ArgumentContainer) -> List[Action]:
 
     actions = []
     actions.append(
-        Node(
+        lut.Node(
             package='foxglove_bridge',
             executable='foxglove_bridge',
             parameters=params,
-            # Use error log level to reduce terminal cluttering from "send_buffer_limit reached" warnings.
+            # Use error log level to reduce terminal cluttering from "send_buffer_limit reached"
+            # warnings.
             arguments=['--ros-args', '--log-level', 'ERROR'],
         ))
 
     return actions
 
 
-def generate_launch_description() -> LaunchDescription:
-    args = ArgumentContainer()
+def generate_launch_description() -> lut.LaunchDescription:
+    args = lu.ArgumentContainer()
+    args.add_arg('use_foxglove_whitelist')
     args.add_arg('send_buffer_limit', 10000000)
-    args.add_arg('use_foxglove_whitelist', True)
 
     args.add_opaque_function(add_foxglove)
-    return LaunchDescription(args.get_launch_actions())
+    return lu.LaunchDescription(args.get_launch_actions())

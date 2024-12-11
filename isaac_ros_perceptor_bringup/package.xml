@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>isaac_ros_perceptor_bringup</name>
-  <version>3.1.0</version>
+  <version>3.2.0</version>
   <description>
     Launch files to use isaac perceptor with the Nova sensor suite.
   </description>
@@ -19,8 +19,11 @@
   </license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>isaac_ros_common</build_depend>
 
   <exec_depend>foxglove_bridge</exec_depend>
+  <exec_depend>isaac_common_py</exec_depend>
+  <exec_depend>isaac_mapping_ros</exec_depend>
   <exec_depend>isaac_ros_correlated_timestamp_driver</exec_depend>
   <exec_depend>isaac_ros_data_replayer</exec_depend>
   <exec_depend>isaac_ros_ess</exec_depend>
@@ -31,9 +34,13 @@
   <exec_depend>isaac_ros_launch_utils</exec_depend>
   <exec_depend>isaac_ros_occupancy_grid_localizer</exec_depend>
   <exec_depend>isaac_ros_owl</exec_depend>
-  <exec_depend>isaac_ros_perceptor_constants</exec_depend>
+  <exec_depend>isaac_ros_peoplenet_models_install</exec_depend>
+  <exec_depend>isaac_ros_peoplesemseg_models_install</exec_depend>
+  <exec_depend>isaac_ros_perceptor_python_utils</exec_depend>
   <exec_depend>isaac_ros_pointcloud_utils</exec_depend>
+  <exec_depend>isaac_ros_rosbag_utils</exec_depend>
   <exec_depend>isaac_ros_stereo_image_proc</exec_depend>
+  <exec_depend>isaac_ros_visual_global_localization</exec_depend>
   <exec_depend>isaac_ros_visual_slam</exec_depend>
   <exec_depend>joy_linux</exec_depend>
   <exec_depend>launch</exec_depend>
@@ -45,7 +52,6 @@
   <exec_depend>sllidar_ros2</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>twist_mux</exec_depend>
-  <exec_depend>isaac_ros_peoplesemseg_models_install</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -1,0 +1,73 @@
+nvblox_config:
+  container_name: 'nvblox_container'
+  attach_to_container: false
+  node_name: 'nvblox_node'
+  remappings:
+    - depth:
+        image: '/camera0/realsense_splitter_node/output/depth'
+        info: '/camera0/depth/camera_info'
+      color:
+        image: '/camera0/color/image_raw'
+        info: '/camera0/color/camera_info'
+    - depth:
+        image: '/camera1/depth/image_rect_raw'
+        info: '/camera1/depth/camera_info'
+      color:
+        image: '/camera1/color/image_raw'
+        info: '/camera1/color/camera_info'
+    - depth:
+        image: '/camera2/depth/image_rect_raw'
+        info: '/camera2/depth/camera_info'
+      color:
+        image: '/camera2/color/image_raw'
+        info: '/camera2/color/camera_info'
+    - depth:
+        image: '/camera3/depth/image_rect_raw'
+        info: '/camera3/depth/camera_info'
+      color:
+        image: '/camera3/color/image_raw'
+        info: '/camera3/color/camera_info'
+  config_files:
+    - package: 'isaac_ros_perceptor_bringup'
+      path: 'params/default_nvblox_config.yaml'
+  parameters:
+    - use_lidar: false
+    - input_qos: "SENSOR_DATA"
+    - map_clearing_frame_id: "camera_link"
+    - static_mapper:
+        esdf_slice_height: 0.0
+        esdf_slice_min_height: 0.09
+        esdf_slice_max_height: 0.65
+    - dynamic_mapper:
+        esdf_slice_height: 0.0
+        esdf_slice_min_height: 0.09
+        esdf_slice_max_height: 0.65
+
+cuvslam_config:
+  container_name: 'cuvslam_container'
+  attach_to_container: false
+  node_name: 'cuvslam_node'
+  remappings:
+    stereo_images:
+      - left:
+          image: '/camera0/realsense_splitter_node/output/infra_1'
+          info: '/camera0/infra1/camera_info'
+          optical_frame: 'camera0_infra1_optical_frame'
+        right:
+          image: '/camera0/realsense_splitter_node/output/infra_2'
+          info: '/camera0/infra2/camera_info'
+          optical_frame: 'camera0_infra2_optical_frame'
+    imu: '/camera0/imu'
+  config_files:
+    - package: 'isaac_ros_perceptor_bringup'
+      path: 'params/default_cuvslam_config.yaml'
+  parameters:
+    - image_jitter_threshold_ms: 67.0
+
+common_config:
+  map_frame: 'map'
+  odom_frame: 'odom'
+  robot_frame: 'base_link'
+
+extra_topics:
+  - '/tf_static'

@@ -23,6 +23,7 @@ def generate_launch_description() -> LaunchDescription:
     args = lu.ArgumentContainer()
     args.add_arg('run_foxglove', True, cli=True)
     args.add_arg('run_rviz', False, cli=True)
+    args.add_arg('use_foxglove_whitelist')
     args.add_arg('enable_people_segmentation')
     actions = args.get_launch_actions()
 
@@ -30,6 +31,7 @@ def generate_launch_description() -> LaunchDescription:
         lu.include(
             'isaac_ros_perceptor_bringup',
             'launch/tools/foxglove_bridge.launch.py',
+            launch_arguments={'use_foxglove_whitelist': args.use_foxglove_whitelist},
             condition=IfCondition(args.run_foxglove)))
 
     actions.append(

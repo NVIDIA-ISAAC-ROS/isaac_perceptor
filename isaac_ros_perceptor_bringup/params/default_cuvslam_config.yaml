@@ -1,0 +1,15 @@
+/**:
+  ros__parameters:
+    rectified_images: true
+    enable_localization_n_mapping: true
+    enable_imu_fusion: false
+    publish_odom_to_base_tf: true
+    publish_map_to_odom_tf: true
+    verbosity: 999
+    enable_ground_constraint_in_odometry: true
+    enable_ground_constraint_in_slam: true
+    path_max_size: 2000
+    enable_verbosity: true
+    enable_slam_visualization: true
+    enable_landmarks_view: true
+    enable_observations_view: true
