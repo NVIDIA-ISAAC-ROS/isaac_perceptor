@@ -17,6 +17,7 @@
 
 import pathlib
 
+# flake8: noqa: F403,F405
 from isaac_ros_launch_utils.all_types import *
 import isaac_ros_launch_utils as lu
 
@@ -37,7 +38,7 @@ def add_rviz(args: lu.ArgumentContainer) -> list[Action]:
         Node(
             package="rviz2",
             executable="rviz2",
-            arguments=["-d", str(rviz_config_path), "-f", args.global_frame],
+            arguments=["-d", str(rviz_config_path), "-f", args.rviz_frame],
             output="screen"))
     return actions
 
@@ -45,7 +46,7 @@ def add_rviz(args: lu.ArgumentContainer) -> list[Action]:
 def generate_launch_description() -> LaunchDescription:
     args = lu.ArgumentContainer()
     args.add_arg('rviz_config', 'None', cli=True)
-    args.add_arg('global_frame', 'odom')
+    args.add_arg('rviz_frame', 'odom')
     args.add_arg('enable_people_segmentation')
 
     args.add_opaque_function(add_rviz)

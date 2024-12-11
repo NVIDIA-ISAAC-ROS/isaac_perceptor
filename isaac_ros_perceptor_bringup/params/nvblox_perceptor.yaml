@@ -2,6 +2,8 @@
   ros__parameters:
     # printing statistics on console
     print_timings_to_console: false
+    print_rates_to_console: false
+    print_delays_to_console: false
     # Lidar settings
     use_lidar: false
     # QoS settings
@@ -9,22 +11,43 @@
     # Map clearing settings
     map_clearing_frame_id: "base_link"
     # Rviz visualization
-    slice_visualization_attachment_frame_id: "base_link"
+    esdf_slice_bounds_visualization_attachment_frame_id: "base_link"
+    # Reduce decay rate to save compute
+    decay_tsdf_rate_hz: 1.0
+    decay_dynamic_occupancy_rate_hz: 5.0
+    # Depth integration rate limit
+    integrate_depth_rate_hz: 35.0
+
+    # Limit visualization overhead
+    integrate_color_rate_hz: 1.0
+    update_mesh_rate_hz: -1.0
+    layer_visualization_exclusion_height_m: 1.5
+    layer_visualization_exclusion_radius_m: 5.0
+    layer_streamer_bandwidth_limit_mbps: 150.0
+
+    multi_mapper:
+      remove_small_connected_components: true
 
     static_mapper:
       esdf_slice_height: 0.09
       esdf_slice_min_height: 0.09
       esdf_slice_max_height: 0.65
-      # projective integrators - Changed to constant to deal with movement in the scene
-      projective_integrator_weighting_mode: "constant"
+      # view calculator (only map inside the height bounds)
+      workspace_bounds_type: "height_bounds" # ["unbounded", "height_bounds", "bounding_box"]
+      workspace_bounds_min_height_m: -0.5
+      workspace_bounds_max_height_m: 2.0
       # tsdf decay - Turned up to deal with movement in the scene
       tsdf_decay_factor: 0.85
       # do not send ceiling:
-      mesh_streamer_exclusion_height_m: 1.4
-      mesh_streamer_exclusion_radius_m: 5.0
-      mesh_bandwidth_limit_mbps: 30.0
+      layer_streamer_exclusion_height_m: 1.4
+      layer_streamer_exclusion_radius_m: 5.0
+      # Disable neighborhood check to speed up the freespace kernel
+      check_neighborhood: true
 
     dynamic_mapper:
       esdf_slice_height: 0.09
       esdf_slice_min_height: 0.09
       esdf_slice_max_height: 0.65
+      # occupancy decay integrator
+      free_region_decay_probability: 0.55
+      occupied_region_decay_probability: 0.30

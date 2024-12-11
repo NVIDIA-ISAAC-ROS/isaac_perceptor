@@ -32,8 +32,8 @@ def add_hawk(name: str, module_id: int, args: lu.ArgumentContainer) -> Composabl
         parameters=[{
             'module_id': module_id,
             'camera_link_frame_name': name,
-            'left_optical_frame_name': f'{name}_left_optical',
-            'right_optical_frame_name': f'{name}_right_optical',
+            'left_camera_frame_name': f'{name}_left',
+            'right_camera_frame_name': f'{name}_right',
         }],
     )
 

@@ -14,4 +14,3 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-from isaac_ros_perceptor_constants.constants import *

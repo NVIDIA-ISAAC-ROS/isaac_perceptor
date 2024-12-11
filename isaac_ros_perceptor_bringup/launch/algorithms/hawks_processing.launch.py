@@ -15,11 +15,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-
+# flake8: noqa: F403,F405
 from isaac_ros_launch_utils.all_types import *
 import isaac_ros_launch_utils as lu
-import isaac_ros_perceptor_constants as pc
+import isaac_ros_perceptor_python_utils.constants as pc
 
 
 def create_imager_pipeline(stereo_camera_name: str, identifier: str,
@@ -34,7 +33,6 @@ def create_imager_pipeline(stereo_camera_name: str, identifier: str,
         plugin='nvidia::isaac_ros::image_proc::RectifyNode',
         namespace=f'{stereo_camera_name}/{identifier}',
         parameters=[{
-            'input_qos': 'SENSOR_DATA',
             'output_width': pc.HAWK_IMAGE_WIDTH,
             'output_height': pc.HAWK_IMAGE_HEIGHT,
         }],
@@ -126,10 +124,12 @@ def generate_launch_description() -> LaunchDescription:
     args.add_arg('ess_number_of_frames_to_skip', 1)
     args.add_arg('ess_full_engine_file_path',
                  lu.get_isaac_ros_ws_path() +
-                 '/isaac_ros_assets/models/dnn_stereo_disparity/dnn_stereo_disparity_v4.0.0/ess.engine')
+                 '/isaac_ros_assets/models/dnn_stereo_disparity/dnn_stereo_disparity_v4.1.0_onnx'
+                 '/ess.engine')
     args.add_arg('ess_light_engine_file_path',
                  lu.get_isaac_ros_ws_path() +
-                 '/isaac_ros_assets/models/dnn_stereo_disparity/dnn_stereo_disparity_v4.0.0/light_ess.engine')
+                 '/isaac_ros_assets/models/dnn_stereo_disparity/dnn_stereo_disparity_v4.1.0_onnx/'
+                 'light_ess.engine')
 
     # Create pipelines for each camera according to the camera config
     actions = args.get_launch_actions()

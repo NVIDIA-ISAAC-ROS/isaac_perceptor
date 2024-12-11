@@ -1,0 +1,38 @@
+# This configuration file enables global mapping by removing decay and radius clearing.
+#
+/**:
+  ros__parameters:
+    # printing statistics on console
+    print_timings_to_console: false
+    # Lidar settings
+    use_lidar: false
+    # QoS settings
+    input_qos: "SENSOR_DATA"
+    # Map clearing settings
+    map_clearing_frame_id: "base_link"
+    # Visualization
+    slice_visualization_attachment_frame_id: "base_link"
+    layer_streamer_bandwidth_limit_mbps: 30.0
+    esdf_mode: "3d" # ["2d", "3d"]
+
+    static_mapper:
+      esdf_slice_height: 0.3
+      esdf_slice_min_height: 0.09
+      esdf_slice_max_height: 0.65
+      # projective integrators - Changed to constant to deal with movement in the scene
+      projective_integrator_weighting_mode: "constant"
+      # do not send ceiling:
+      layer_streamer_exclusion_height_m: 1.4
+      layer_streamer_exclusion_radius_m: 5.0
+
+    dynamic_mapper:
+      esdf_slice_height: 0.09
+      esdf_slice_min_height: 0.09
+      esdf_slice_max_height: 0.65
+
+    decay_tsdf_rate_hz: 0.0
+    decay_dynamic_occupancy_rate_hz: 0.0
+    clear_map_outside_radius_rate_hz: 0.0
+    
+    # For better handling of dynamics at increased computational cost, uncomment the following line:
+    #mapping_type: "dynamic"

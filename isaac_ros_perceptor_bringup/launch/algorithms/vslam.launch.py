@@ -15,31 +15,38 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from isaac_ros_launch_utils.all_types import *
+import isaac_ros_launch_utils.all_types as lut
 import isaac_ros_launch_utils as lu
 
-from typing import Tuple
 
-
-def remap(i: int, name: str, identifier: str) -> list[Tuple[str, str]]:
+def remap(i: int, name: str, identifier: str) -> list[tuple[str, str]]:
     return [
         (f'visual_slam/image_{i}', f'/{name}/{identifier}/image_raw'),
         (f'visual_slam/camera_info_{i}', f'/{name}/{identifier}/camera_info'),
     ]
 
 
-def add_vslam(args: lu.ArgumentContainer) -> list[Action]:
-    camera_names = args.enabled_stereo_cameras_for_vslam.split(',')
+def add_vslam(args: lu.ArgumentContainer) -> list[lut.Action]:
+    camera_names = args.vslam_enabled_stereo_cameras.split(',')
 
     camera_optical_frames = []
-    remappings = [('visual_slam/imu', '/front_stereo_imu/imu')]
+    remappings = [
+        ('visual_slam/imu', '/front_stereo_imu/imu'),
+        # TODO(lgulich): Would it be better to use the standard topic '/initialpose'?
+        ('visual_slam/initial_pose', '/visual_localization/pose'),
+        ('visual_slam/trigger_hint', '/visual_localization/trigger_localization'),
+    ]
     for i, camera_name in enumerate(camera_names):
         camera_optical_frames.append(f'{camera_name}_left_optical')
         camera_optical_frames.append(f'{camera_name}_right_optical')
         remappings.extend(remap(2 * i, camera_name, 'left'))
         remappings.extend(remap(2 * i + 1, camera_name, 'right'))
 
-    visual_slam_node = ComposableNode(
+    # Isaac Sim publishes images at 20hz
+    # Set image jitter threshold ms to keep the vslam node from spamming warnings
+    image_jitter_threshold_ms = 51.0 if args.is_sim else 34.0
+
+    visual_slam_node = lut.ComposableNode(
         name='visual_slam_node',
         package='isaac_ros_visual_slam',
         plugin='nvidia::isaac_ros::visual_slam::VisualSlamNode',
@@ -48,32 +55,43 @@ def add_vslam(args: lu.ArgumentContainer) -> list[Action]:
             'num_cameras': 2 * len(camera_names),
             'min_num_images': 2 * len(camera_names),
             'enable_image_denoising': False,
-            'enable_localization_n_mapping': ParameterValue(args.enable_slam_for_vslam, value_type=bool),
+            'enable_localization_n_mapping':
+                lut.ParameterValue(args.vslam_enable_slam, value_type=bool),
+            'slam_throttling_time_ms': 10000,
             'enable_ground_constraint_in_odometry': True,
-            'enable_imu_fusion': ParameterValue(args.enable_imu_for_vslam, value_type=bool),
+            'enable_ground_constraint_in_slam': True,
+            'enable_imu_fusion': lut.ParameterValue(args.vslam_enable_imu, value_type=bool),
             'gyro_noise_density': 0.000244,
             'gyro_random_walk': 0.000019393,
             'accel_noise_density': 0.001862,
             'accel_random_walk': 0.003,
             'calibration_frequency': 200.0,
-            'image_qos': args.image_qos,
+            'image_qos': args.vslam_image_qos,
+            'save_map_folder_path': args.vslam_save_map_folder_path,
+            'load_map_folder_path': args.vslam_load_map_folder_path,
+            'localize_on_startup':
+                lut.ParameterValue(args.vslam_localize_on_startup, value_type=bool),
+            'image_jitter_threshold_ms': image_jitter_threshold_ms,
+            'enable_request_hint': args.vslam_enable_request_hint,
             # It's recommended to use image masking with unrectified images.
             'rectified_images': False,
             'img_mask_bottom': 30,
             'img_mask_left': 150,
             'img_mask_right': 30,
             # Frames:
-            'map_frame': 'map',
-            'odom_frame': args.global_frame,
+            'map_frame': args.vslam_map_frame,
+            'odom_frame': args.vslam_odom_frame,
             'base_frame': 'base_link',
             'imu_frame': 'front_stereo_camera_imu',
-            'publish_map_to_odom_tf': False,
+            'publish_odom_to_base_tf': True,
+            'publish_map_to_odom_tf': args.vslam_publish_map_to_odom_tf,
             'invert_odom_to_base_tf': args.invert_odom_to_base_tf,
             # Visualization:
             'path_max_size': 1024,
             'enable_slam_visualization': False,
-            'enable_landmarks_view': False,
             'enable_observations_view': False,
+            'enable_landmarks_view': False,
+            'verbosity': 10,
         }],
         remappings=remappings,
     )
@@ -81,22 +99,29 @@ def add_vslam(args: lu.ArgumentContainer) -> list[Action]:
     actions = []
     actions.append(lu.load_composable_nodes(args.container_name, [visual_slam_node]))
     actions.append(
-        lu.log_info(["Enabling vslam for cameras '", args.enabled_stereo_cameras_for_vslam, "'"]))
+        lu.log_info(["Enabling vslam for cameras '", args.vslam_enabled_stereo_cameras, "'"]))
 
     return actions
 
 
-def generate_launch_description() -> LaunchDescription:
+def generate_launch_description() -> lut.LaunchDescription:
     args = lu.ArgumentContainer()
-    args.add_arg('enabled_stereo_cameras_for_vslam')
-    args.add_arg('enable_imu_for_vslam', False)
-    args.add_arg('enable_slam_for_vslam', False)
-    args.add_arg('min_num_images_used_in_vslam', 2)
     args.add_arg('container_name', 'nova_container')
-    args.add_arg('global_frame', 'odom')
-    args.add_arg('image_qos', 'SENSOR_DATA')
+    args.add_arg('vslam_image_qos', 'SENSOR_DATA')
     args.add_arg('invert_odom_to_base_tf', False)
+    args.add_arg('is_sim', False)
     args.add_arg('publish_odom_to_base_tf', True)
+    args.add_arg('vslam_publish_map_to_odom_tf', True)
+    args.add_arg('vslam_enable_imu', False)
+    args.add_arg('vslam_enable_slam', False)
+    args.add_arg('vslam_enabled_stereo_cameras')
+    args.add_arg('vslam_load_map_folder_path', '')
+    args.add_arg('vslam_save_map_folder_path', '')
+    args.add_arg('vslam_localize_on_startup', False)
+    args.add_arg('vslam_map_frame', 'map')
+    args.add_arg('vslam_odom_frame', 'odom')
+    args.add_arg('vslam_enable_request_hint', True)
+
     args.add_opaque_function(add_vslam)
 
-    return LaunchDescription(args.get_launch_actions())
+    return lut.LaunchDescription(args.get_launch_actions())
